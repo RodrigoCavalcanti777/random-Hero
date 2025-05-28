@@ -1,11 +1,28 @@
 const express = require('express');
 const route = express.Router();
+const bcrypt = require('bcryptjs');
+
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+
+
 route.post('/createUser', async (req, res) => {
     const { name, email, password } = req.body;  
+
+
+    const existentUser = await prisma.usuario.findUnique({
+        where: email
+    })
+
+    if(existentUser){
+        res.status(500).json({
+            message: "Usuario Já cadastrado..."
+        })
+    }
+
+    const ocultpassword = await bcrypt.hash(password,10);
 
     try {
        
@@ -13,7 +30,7 @@ route.post('/createUser', async (req, res) => {
             data: { 
                 name, 
                 email, 
-                password 
+                password: ocultpassword
             }
         });
 
