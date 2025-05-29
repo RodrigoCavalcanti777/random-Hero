@@ -2,18 +2,15 @@ const express = require('express');
 const route = express.Router();
 const bcrypt = require('bcryptjs');
 
-
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
-
 
 route.post('/createUser', async (req, res) => {
     const { name, email, password } = req.body;  
 
 
     const existentUser = await prisma.usuario.findUnique({
-        where: email
+        where: {email:email}
     })
 
     if(existentUser){
