@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+//rota para criar usuario
 route.post('/createUser', async (req, res) => {
     const { name, email, password } = req.body;  
 
@@ -43,6 +44,53 @@ route.post('/createUser', async (req, res) => {
         
 })
 
+//rota para listar todos os usuario da aplicacao
+route.get('/users', async (res) =>{
 
+    try {
+        const getAllUsers = await prisma.usuario.findMany();
+
+        res.status(200).json({
+            message: 'Lista de todos os users da aplicacao',
+            getAllUsers
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Erro ao listar todos os users'
+        })
+    }
+})
+
+
+//rota para listar um usuario especifico
+
+route.get('/users/:id', async (req, res) =>{
+
+        const {id} = req.params;
+
+
+        try {
+            const listUser = await prisma.usuario.findUnique({
+                where: {id : Number(id)}
+            })
+            
+            if(!listUser){
+                return res.status(500).json({
+                    message: 'Id de usuario nao existente'
+                })
+            }
+
+            res.status(200).json({
+                message: 'User retornado com sucesso',
+                listUser
+            })
+
+        } catch (error) {
+            res.status(500).json({
+                message: 'Erro ao retornar usuario',
+                error
+            })
+        }
+})
 
 module.exports = route;
